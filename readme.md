@@ -1,3 +1,8 @@
+### Feature Importance: 
+feature_importance_ : this can be helpful in dimensionality reduction.
+
+this is an hyperparameter, while training DT on your dataset, while creating the DT, 
+it calculates the importance value of the column based on which column is used how many times frequently used
 ## hyperparameters for DT:
 
 ### 1. Critetion: gini or entropy. 
@@ -20,6 +25,11 @@ d. Min impurity decrease is not enough (min_impurity_decrease parameter).
 
 If purity is not achieved but one of the above conditions is met, splitting will stop, and the node will remain impure.
 
+Splitting: 
+    Best: you do a split for every numerical value  w.r.t rest of the values. every time you create 2 datasets.you repeat this process and find the highest IG for a particular pair.
+    Random: here splitting criteria is randomly decided thereby helping to reduce overfitting
+    HOwever, best is the preferred option
+
 ## 3. max_depth
 
 default is None --> means you are not controlling the depth. chances of overfitting is high
@@ -27,6 +37,25 @@ default is None --> means you are not controlling the depth. chances of overfitt
 if value is too small - under fitting
 if value is too big - over fitting
 
+### Min Samples Split: \
+
+lets say if you give 100 over here. ON any node, if there less than 100 samples, then no furthere split will happen. that will become tyou leaf node and stop there.
+    more the value --> underfitting
+
+### Min sample leaf: 
+if it is set to 100, then while splitting a node, the upcoming split should have atleast 100 records/samples.
+    more the value --> underfitting
+
+### Max Features: 
+    if your dataset has 100 columns, then you can decide if you want only 50 columns out of it. You can only provide the number and cannot decide which columns you want to perform split on. this decision happens randomly and we do not have control. the intend is to reduce overfitting.
+
+### Min Impurity Decrease: 
+
+    if set to 0.01, it means during split, if the impurity reduces by more or equal to set value only then split will happen else not.
+    High values leads to underfitting since the splits will complete soon.
+
+### Max Leaf Nodes: 
+    number of leaf nodes that should be there after split is decided by this number.
 
 ## Q. Can we say that if the ENTROPY=0, then no further splitting. does it mean splitting will happen until entropy becomes zero?
 
@@ -184,3 +213,10 @@ Gini uses SQUARE and ENTROPY uses LOG, hence Gini is faster in computation
 </table>
 
 
+## When you dataset has numerical dataset:
+
+###
+
+## Overfitting scenarios in DT Algo
+
+1. if you set max_depth=None which is by default, then in that case, if your leaf node eventually got 2 records which has 'No' then 

@@ -50,16 +50,37 @@ def plot_decision_tree(model, feature_names, info_gain):
     info_gain_df = pd.DataFrame(info_gain.items(), columns=['Feature', 'Information Gain']).sort_values(by='Information Gain', ascending=False)
     st.table(info_gain_df)
 
-def plot_data_changes(df, X_train, y_train, X_test, y_test, y_pred):
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+def plot_data_changes(df, X_train, y_train, X_test, y_test, model):
+    # Select only the first two features for visualization
+    X_train_vis = X_train.iloc[:, :2]
+    X_test_vis = X_test.iloc[:, :2]
+
+    # Train a new DecisionTreeClassifier with only two features
+    vis_model = DecisionTreeClassifier(max_depth=model.get_params()["max_depth"], random_state=42)
+    vis_model.fit(X_train_vis, y_train)
+
+    # Generate a mesh grid for decision boundary
+    x_min, x_max = X_train_vis.iloc[:, 0].min() - 1, X_train_vis.iloc[:, 0].max() + 1
+    y_min, y_max = X_train_vis.iloc[:, 1].min() - 1, X_train_vis.iloc[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 1.0), np.arange(y_min, y_max, 1.0))
+
+    # Predict on the grid
+    Z = vis_model.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    # Plot decision boundary
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.contourf(xx, yy, Z, alpha=0.3, cmap="coolwarm")
     
-    sns.scatterplot(x=X_train.iloc[:, 0], y=X_train.iloc[:, 1], hue=y_train, ax=axes[0], palette='coolwarm')
-    axes[0].set_title("Training Data Before Classification")
+    # Scatter plot actual data
+    sns.scatterplot(x=X_train_vis.iloc[:, 0], y=X_train_vis.iloc[:, 1], hue=y_train, edgecolor="k", ax=ax)
     
-    sns.scatterplot(x=X_test.iloc[:, 0], y=X_test.iloc[:, 1], hue=y_pred, ax=axes[1], palette='coolwarm', marker='s')
-    axes[1].set_title("Predictions After Classification")
-    
+    plt.xlabel(X_train_vis.columns[0])
+    plt.ylabel(X_train_vis.columns[1])
+    plt.title("Decision Boundary of Decision Tree")
+
     st.pyplot(fig)
+
 
 def main():
     st.title("Decision Tree Classifier with Configurable Parameters")
@@ -102,7 +123,8 @@ def main():
         plot_decision_tree(model, X_train.columns, info_gain)
         
         st.subheader("Dataset Visualization Before & After Classification")
-        plot_data_changes(df, X_train, y_train, X_test, y_test, y_pred)
-        
+        #plot_data_changes(df, X_train, y_train, X_test, y_test, y_pred)
+        plot_data_changes(df, X_train, y_train, X_test, y_test, model)  # Pass the trained model, not y_pred
+
 if __name__ == "__main__":
     main()
