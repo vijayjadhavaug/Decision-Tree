@@ -122,6 +122,9 @@ This means the max value for E = 1 and G = 0.5. The bell curve for gini is half 
 SPlit of ENTROPY is bit balanced compared ti Gini. ENTROPY provides more balanced splits whereas Gini overfits
 
 Gini uses SQUARE and ENTROPY uses LOG, hence Gini is faster in computation
+## **************
+
+### Here’s a comparison table for different models based on their suitability for large datasets with many numerical columns:
 
 <table>
   <tr>

@@ -22,6 +22,12 @@ def split_data(df):
     y = df["Purchase"]
     return train_test_split(X, y, test_size=0.2, random_state=42)
 
+def calculate_information_gain(X_train, y_train, model):
+    feature_importances = model.feature_importances_
+    feature_names = X_train.columns
+    info_gain = {feature: importance for feature, importance in zip(feature_names, feature_importances)}
+    return info_gain
+
 def train_model(X_train, y_train, params):
     model = DecisionTreeClassifier(**params, random_state=42)
     model.fit(X_train, y_train)
@@ -33,11 +39,16 @@ def evaluate_model(model, X_test, y_test):
     report = classification_report(y_test, y_pred, output_dict=True)
     return accuracy, report, y_pred
 
-def plot_decision_tree(model, feature_names):
+def plot_decision_tree(model, feature_names, info_gain):
     plt.figure(figsize=(12, 6))
     plot_tree(model, feature_names=feature_names, filled=True, class_names=["No", "Yes"])
     plt.title("Decision Tree Visualization")
     st.pyplot(plt)
+    
+    # Display Information Gain values
+    st.subheader("Feature Importance (Information Gain)")
+    info_gain_df = pd.DataFrame(info_gain.items(), columns=['Feature', 'Information Gain']).sort_values(by='Information Gain', ascending=False)
+    st.table(info_gain_df)
 
 def plot_data_changes(df, X_train, y_train, X_test, y_test, y_pred):
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
@@ -79,6 +90,7 @@ def main():
         
         model = train_model(X_train, y_train, params)
         accuracy, report, y_pred = evaluate_model(model, X_test, y_test)
+        info_gain = calculate_information_gain(X_train, y_train, model)
         
         st.subheader("Model Performance")
         st.write(f"Accuracy: {accuracy:.2f}")
@@ -87,7 +99,7 @@ def main():
         st.table(pd.DataFrame(report).transpose())
         
         st.subheader("Decision Tree Structure")
-        plot_decision_tree(model, X_train.columns)
+        plot_decision_tree(model, X_train.columns, info_gain)
         
         st.subheader("Dataset Visualization Before & After Classification")
         plot_data_changes(df, X_train, y_train, X_test, y_test, y_pred)
